@@ -1,28 +1,34 @@
-
+import { MongoClient } from 'mongodb'
 import MeetupList from '../components/meetups/MeetupList'
 
-const HomePage = () => {
-    const DUMMY_MEETUP =[
-    {
-        id: 'm1',
-        image: 'https://www.theagilityeffect.com/app/uploads/2019/03/00_VINCI-ICONOGRAPHIE-GettyImages-890132412_1280x680.jpg',
-        title: 'First Meetup',
-        address: 'Calle falsa, 123',
-        description: 'This is a first meetup!'
-    },
-    {
-        id: 'm2',
-        image: 'https://www.theagilityeffect.com/app/uploads/2019/03/00_VINCI-ICONOGRAPHIE-GettyImages-890132412_1280x680.jpg',
-        title: 'Second Meetup',
-        address: 'P Sherman Wallabe 42, Sidney',
-        description: 'This is a second meetup!'
-    }
-    ]
+const HomePage = (props) => {
   return (
-   
-        <MeetupList meetups={DUMMY_MEETUP}/>
-   
+        <MeetupList meetups={props.meetups}/>
   )
+}
+
+export async function getStaticProps(){
+
+    const client = await MongoClient.connect('mongodb+srv://FlorF:FlorF@cluster0.1zaqa.mongodb.net/meetups?retryWrites=true&w=majority')
+
+    const db = client.db()
+
+    const meetupsCollection = db.collection('meetups')
+
+     const meetups = await meetupsCollection.find().toArray()
+     client.close()
+
+    return{
+        props: {
+            meetups: meetups.map(meetup => ({
+                title: meetup.title,
+                image: meetup.image,
+                address: meetup.address,
+                id: meetup._id.toString()
+            }))
+        },
+        revalidate: 1
+    }
 }
 
 export default HomePage

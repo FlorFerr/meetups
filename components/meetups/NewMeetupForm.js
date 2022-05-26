@@ -18,6 +18,7 @@ function NewMeetupForm(props) {
     const enteredDescription = descriptionInputRef.current.value;
 
     const meetupData = {
+     
       title: enteredTitle,
       image: enteredImage,
       address: enteredAddress,
